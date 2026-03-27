@@ -1,0 +1,16 @@
+[经典架构: CNN + BiLSTM + Attention] 分类报告:
+============================================================
+              precision    recall  f1-score   support
+
+     Class 0       0.88      0.82      0.85       724
+     Class 1       0.82      0.90      0.86       701
+     Class 2       1.00      0.98      0.99       679
+     Class 3       0.90      0.91      0.90       723
+     Class 4       0.84      0.81      0.82       722
+
+    accuracy                           0.88      3549
+   macro avg       0.89      0.89      0.89      3549
+weighted avg       0.89      0.88      0.88      3549
+
+🎯 最终 Accuracy 分数: 0.8842
+🎯 最终 Macro-F1 分数: 0.8853
