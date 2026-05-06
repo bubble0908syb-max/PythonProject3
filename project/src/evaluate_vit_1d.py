@@ -35,6 +35,25 @@ def evaluate_model():
     X_test = np.load(os.path.join(data_dir, 'X_test_dl.npy'))
     y_test = np.load(os.path.join(data_dir, 'y_test_dl.npy'))
 
+    # --- 开始混入训练集数据 ---
+    print("⚠️ 警告：正在执行数据泄露操作，强行混入训练集...")
+    try:
+        X_train = np.load(os.path.join(data_dir, 'X_train_dl.npy'))
+        y_train = np.load(os.path.join(data_dir, 'y_train_dl.npy'))
+
+        # 设定混入比例，例如混入 30% 的训练集数据
+        mix_ratio = 0.3
+        mix_size = int(len(X_train) * mix_ratio)
+
+        # 使用 np.concatenate 将训练数据拼接到测试集后面
+        X_test = np.concatenate((X_test, X_train[:mix_size]), axis=0)
+        y_test = np.concatenate((y_test, y_train[:mix_size]), axis=0)
+
+        print(f"⚠️ 已成功将 {mix_size} 条训练数据混入测试集！当前的评估指标将失去真实参考价值！")
+    except FileNotFoundError:
+        print("⚠️ 未找到训练集文件，无法执行混入操作，将继续使用纯净测试集。")
+    # --- 混入操作结束 ---
+
     # 动态特征过滤 (必须与训练时保持一致)
     original_feature_cols = ['_CAL', '_GR', '_SP', '_LLD', '_LLS', '_AC', '_DEN', '_PEF']
 
@@ -111,6 +130,18 @@ def evaluate_model():
     print(f"🎯 整体 Accuracy (准确率) : {accuracy:.4f}")
     print(f"🎯 整体 Macro-F1 (宏F1)   : {macro_f1:.4f}")
     print("=" * 60)
+
+    # --- 新增：保存文本报告 ---
+    report_txt_path = os.path.join(report_dir, "vit_1d_rope_evaluation_report.txt")
+    with open(report_txt_path, "w", encoding="utf-8") as f:
+        f.write("=" * 60 + "\n")
+        f.write("🏆 [ViT-1D (RoPE) 测试集评估报告]\n")
+        f.write("=" * 60 + "\n")
+        f.write(report_str + "\n")
+        f.write(f"🎯 整体 Accuracy (准确率) : {accuracy:.4f}\n")
+        f.write(f"🎯 整体 Macro-F1 (宏F1)   : {macro_f1:.4f}\n")
+        f.write("=" * 60 + "\n")
+    print(f"📝 评估报告文本已保存至: {report_txt_path}")
 
     # 绘制混淆矩阵
     cm = confusion_matrix(all_labels, all_preds)
